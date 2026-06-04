@@ -1118,3 +1118,234 @@ html, body {
         stroke-dasharray: 471.23;
     }
 }
+
+/* ==========================================================================
+   9. PREMIUM UPGRADE STYLES
+   ========================================================================== */
+
+/* Cursor Glow on Glass Cards */
+.glass-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    background: radial-gradient(400px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(var(--accent-rgb), 0.08), transparent 80%);
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.glass-card:hover::before {
+    opacity: 1;
+}
+
+/* Ensure card children sit above the glow pseudo-element */
+.glass-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Timer adjustments */
+.timer-adjust-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    margin: -0.25rem 0 1.25rem 0;
+}
+
+.btn-adjust {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-adjust:hover {
+    background: rgba(var(--accent-rgb), 0.15);
+    border-color: var(--accent-glow);
+    transform: scale(1.1);
+}
+
+.adjust-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Volume Slider Controls */
+.audio-volume-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 80px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    outline: none;
+    transition: background 0.3s;
+}
+
+.volume-slider:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent-secondary);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(var(--accent-sec-rgb), 0.6);
+    transition: transform 0.1s;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+}
+
+/* Breathing Progress Bar */
+.breathing-progress-wrapper {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.breathing-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent-glow), var(--accent-secondary));
+    border-radius: 2px;
+    transition: width 0.1s linear;
+}
+
+/* Mood Logger Styles */
+.mood-tracker-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    margin-bottom: 1.25rem;
+}
+
+.mood-tracker-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.mood-selector {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.mood-emoji-btn {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.15rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.mood-emoji-btn:hover {
+    transform: scale(1.3);
+}
+
+.mood-emoji-btn.active {
+    background: rgba(var(--accent-rgb), 0.15);
+    transform: scale(1.3);
+    box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.3);
+}
+
+.mood-streak-indicator {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-secondary);
+    background: rgba(var(--accent-sec-rgb), 0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+}
+
+/* Note notebook actions */
+.note-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Tasks Drag and Drop states */
+.task-item {
+    cursor: grab;
+}
+
+.task-item:active {
+    cursor: grabbing;
+}
+
+.task-list.drag-over {
+    background: rgba(var(--accent-rgb), 0.05);
+    border: 2px dashed rgba(var(--accent-rgb), 0.3);
+    border-radius: 8px;
+    padding: 0.5rem;
+}
+
+/* Quadrant clear button */
+.quadrant-badge-title {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.btn-clear-completed {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--card-border);
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    opacity: 0.7;
+}
+
+.btn-clear-completed:hover {
+    opacity: 1;
+    color: #ef476f;
+    border-color: rgba(239, 71, 111, 0.4);
+    background: rgba(239, 71, 111, 0.08);
+}

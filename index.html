@@ -95,6 +95,16 @@
                         <button id="mode-long" class="mode-tab" data-time="15">Long Break</button>
                     </div>
 
+                    <div class="timer-adjust-row">
+                        <button id="timer-adjust-dec" class="btn-adjust" type="button" aria-label="Decrease time" title="Decrease 1 minute">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                        <span class="adjust-label">Adjust Session</span>
+                        <button id="timer-adjust-inc" class="btn-adjust" type="button" aria-label="Increase time" title="Increase 1 minute">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                    </div>
+
                     <div class="timer-controls">
                         <button id="timer-toggle-btn" class="btn btn-primary" aria-label="Start Timer">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="6 3 20 12 6 21 6 3"/></svg>
@@ -107,11 +117,14 @@
                     </div>
 
                     <div class="audio-control-row">
-                        <span class="audio-label">Ambient Sound:</span>
-                        <button id="sound-toggle-btn" class="audio-toggle-btn" aria-pressed="false" title="Toggle Sound">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-                            <span>Off</span>
-                        </button>
+                        <span class="audio-label">Ambient Noise:</span>
+                        <div class="audio-volume-controls">
+                            <button id="sound-toggle-btn" class="audio-toggle-btn" aria-pressed="false" title="Toggle Sound">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                                <span>Off</span>
+                            </button>
+                            <input type="range" id="sound-volume-slider" class="volume-slider" min="0" max="100" value="50" aria-label="Volume" title="Ambient volume">
+                        </div>
                     </div>
                 </div>
 
@@ -125,6 +138,10 @@
                             <div class="breath-circle-inner"></div>
                             <span id="breathing-text" class="breath-text">Start</span>
                         </div>
+                    </div>
+                    
+                    <div class="breathing-progress-wrapper">
+                        <div id="breathing-progress-bar" class="breathing-progress-bar"></div>
                     </div>
                     
                     <div class="breathing-controls">
@@ -162,37 +179,49 @@
                         <!-- Quadrant 1: Urgent & Important -->
                         <div class="matrix-quadrant q1" id="quadrant-q1">
                             <div class="quadrant-header">
-                                <span class="quadrant-badge badge-q1">Do Now</span>
-                                <h3>Urgent & Important</h3>
+                                <div class="quadrant-badge-title">
+                                    <span class="quadrant-badge badge-q1">Do Now</span>
+                                    <h3>Urgent & Important</h3>
+                                </div>
+                                <button type="button" class="btn-clear-completed" data-q="q1" title="Clear completed tasks">Clear Done</button>
                             </div>
-                            <ul class="task-list" id="list-q1"></ul>
+                            <ul class="task-list drop-zone" id="list-q1" data-q="q1"></ul>
                         </div>
 
                         <!-- Quadrant 2: Important, Not Urgent -->
                         <div class="matrix-quadrant q2" id="quadrant-q2">
                             <div class="quadrant-header">
-                                <span class="quadrant-badge badge-q2">Schedule</span>
-                                <h3>Important & Strategic</h3>
+                                <div class="quadrant-badge-title">
+                                    <span class="quadrant-badge badge-q2">Schedule</span>
+                                    <h3>Important & Strategic</h3>
+                                </div>
+                                <button type="button" class="btn-clear-completed" data-q="q2" title="Clear completed tasks">Clear Done</button>
                             </div>
-                            <ul class="task-list" id="list-q2"></ul>
+                            <ul class="task-list drop-zone" id="list-q2" data-q="q2"></ul>
                         </div>
 
                         <!-- Quadrant 3: Urgent, Not Important -->
                         <div class="matrix-quadrant q3" id="quadrant-q3">
                             <div class="quadrant-header">
-                                <span class="quadrant-badge badge-q3">Delegate</span>
-                                <h3>Urgent & Routine</h3>
+                                <div class="quadrant-badge-title">
+                                    <span class="quadrant-badge badge-q3">Delegate</span>
+                                    <h3>Urgent & Routine</h3>
+                                </div>
+                                <button type="button" class="btn-clear-completed" data-q="q3" title="Clear completed tasks">Clear Done</button>
                             </div>
-                            <ul class="task-list" id="list-q3"></ul>
+                            <ul class="task-list drop-zone" id="list-q3" data-q="q3"></ul>
                         </div>
 
                         <!-- Quadrant 4: Not Urgent, Not Important -->
                         <div class="matrix-quadrant q4" id="quadrant-q4">
                             <div class="quadrant-header">
-                                <span class="quadrant-badge badge-q4">Backlog</span>
-                                <h3>Quiet Admin / Study</h3>
+                                <div class="quadrant-badge-title">
+                                    <span class="quadrant-badge badge-q4">Backlog</span>
+                                    <h3>Quiet Admin / Study</h3>
+                                </div>
+                                <button type="button" class="btn-clear-completed" data-q="q4" title="Clear completed tasks">Clear Done</button>
                             </div>
-                            <ul class="task-list" id="list-q4"></ul>
+                            <ul class="task-list drop-zone" id="list-q4" data-q="q4"></ul>
                         </div>
                     </div>
                 </div>
@@ -205,6 +234,21 @@
                     <h2 id="mindspace-title" class="section-title">Zen Thoughts</h2>
                     <p class="section-desc">Stream-of-consciousness journaling or quick ideas. Autosaves instantly.</p>
                     
+                    <!-- Energy Mood Selector -->
+                    <div class="mood-tracker-container">
+                        <span class="mood-tracker-title">Your energy level:</span>
+                        <div class="mood-selector">
+                            <button type="button" class="mood-emoji-btn" data-mood="calm" title="Calm 😌">😌</button>
+                            <button type="button" class="mood-emoji-btn" data-mood="focused" title="Focused 🧠">🧠</button>
+                            <button type="button" class="mood-emoji-btn" data-mood="inspired" title="Inspired ✨">✨</button>
+                            <button type="button" class="mood-emoji-btn" data-mood="restless" title="Restless 🤯">🤯</button>
+                            <button type="button" class="mood-emoji-btn" data-mood="exhausted" title="Exhausted 😴">😴</button>
+                        </div>
+                        <div class="mood-streak-indicator">
+                            Streak: <span id="mood-streak-count">0</span>d
+                        </div>
+                    </div>
+
                     <div class="textarea-container">
                         <textarea id="zen-notebook" placeholder="Type what's on your mind. Free your thoughts..." maxlength="3000"></textarea>
                     </div>
@@ -213,7 +257,10 @@
                         <div class="word-counter">
                             <span id="char-count">0</span> characters | <span id="word-count">0</span> words
                         </div>
-                        <button id="clear-notes-btn" class="btn-text" type="button">Clear Space</button>
+                        <div class="note-actions">
+                            <button id="export-notes-btn" class="btn-text" type="button" title="Download note log">Export</button>
+                            <button id="clear-notes-btn" class="btn-text" type="button">Clear</button>
+                        </div>
                     </div>
                 </div>
 

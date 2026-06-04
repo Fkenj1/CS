@@ -1,10 +1,11 @@
 /* ==========================================================================
-   ZENSPACE CORE JAVASCRIPT
-   Implements Timer, Web Audio Synth, Task Matrix, Breath guide, Theme engine
+   ZENSPACE UPGRADED JAVASCRIPT
+   Aesthetic visual glows, white-noise synthesizer, drag-drop, mood tracker
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize Subsystems
+    initCardGlows();
     initClock();
     initThemeEngine();
     initQuotes();
@@ -12,7 +13,23 @@ document.addEventListener('DOMContentLoaded', () => {
     initBreathingSpace();
     initTasksMatrix();
     initPomodoroTimer();
+    initMoodTracker();
 });
+
+/* ==========================================================================
+   0. VISUAL INTERACTIVE CARD GLOWS
+   ========================================================================== */
+function initCardGlows() {
+    document.querySelectorAll('.glass-card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+        });
+    });
+}
 
 /* ==========================================================================
    1. LIVE CLOCK SYSTEM
@@ -25,18 +42,16 @@ function initClock() {
     function updateClock() {
         const now = new Date();
         
-        // Time formatting
         let hours = now.getHours();
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const seconds = String(now.getSeconds()).padStart(2, '0');
         const ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12;
-        hours = hours ? hours : 12; // convert 0 to 12
+        hours = hours ? hours : 12;
         const formattedHours = String(hours).padStart(2, '0');
         
         timeEl.textContent = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
 
-        // Date formatting
         const options = { weekday: 'long', month: 'long', day: 'numeric' };
         dateEl.textContent = now.toLocaleDateString('en-US', options);
     }
@@ -55,22 +70,18 @@ function initThemeEngine() {
     
     if (!themeBtn || !themeMenu) return;
 
-    // Load saved theme
     const savedTheme = localStorage.getItem('zs-theme') || 'cosmic';
     setTheme(savedTheme);
 
-    // Toggle menu dropdown
     themeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         themeMenu.classList.toggle('hidden');
     });
 
-    // Close menu when clicking outside
     document.addEventListener('click', () => {
         themeMenu.classList.add('hidden');
     });
 
-    // Select theme option
     themeOpts.forEach(opt => {
         opt.addEventListener('click', () => {
             const selectedTheme = opt.getAttribute('data-theme');
@@ -83,7 +94,6 @@ function initThemeEngine() {
         document.documentElement.setAttribute('data-theme', themeName);
         localStorage.setItem('zs-theme', themeName);
 
-        // Update button text
         const themeNamesMap = {
             'cosmic': 'Cosmic Dark',
             'forest': 'Forest Aura',
@@ -98,7 +108,6 @@ function initThemeEngine() {
             themeLabel.textContent = themeNamesMap[themeName] || (themeName.charAt(0).toUpperCase() + themeName.slice(1));
         }
 
-        // Update active class in menu list
         themeOpts.forEach(opt => {
             if (opt.getAttribute('data-theme') === themeName) {
                 opt.classList.add('active');
@@ -135,7 +144,6 @@ function initQuotes() {
         const index = Math.floor(Math.random() * ZEN_QUOTES.length);
         const quote = ZEN_QUOTES[index];
         
-        // Dynamic fade effect using CSS transitions
         textEl.style.opacity = 0;
         authorEl.style.opacity = 0;
         
@@ -147,7 +155,6 @@ function initQuotes() {
         }, 250);
     }
 
-    // Set transition styles on load
     textEl.style.transition = 'opacity 0.25s ease';
     authorEl.style.transition = 'opacity 0.25s ease';
 
@@ -158,29 +165,27 @@ function initQuotes() {
 }
 
 /* ==========================================================================
-   4. ZEN NOTES SYSTEM (AUTOSAVE & WORD COUNTER)
+   4. ZEN NOTES SYSTEM (AUTOSAVE, COUNTERS & LOG EXPORT)
    ========================================================================== */
 function initNotes() {
     const notebook = document.getElementById('zen-notebook');
     const charCountEl = document.getElementById('char-count');
     const wordCountEl = document.getElementById('word-count');
     const clearBtn = document.getElementById('clear-notes-btn');
+    const exportBtn = document.getElementById('export-notes-btn');
 
     if (!notebook) return;
 
-    // Load initial notes
     const savedNotes = localStorage.getItem('zs-notes') || '';
     notebook.value = savedNotes;
     updateCounters(savedNotes);
 
-    // Save timer variable for debouncing
     let saveTimeout;
 
     notebook.addEventListener('input', (e) => {
         const text = e.target.value;
         updateCounters(text);
 
-        // Debounce autosave to avoid disk clogging
         clearTimeout(saveTimeout);
         saveTimeout = setTimeout(() => {
             localStorage.setItem('zs-notes', text);
@@ -197,151 +202,264 @@ function initNotes() {
         });
     }
 
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            const noteText = notebook.value.trim();
+            if (noteText === '') {
+                alert("Notes are empty. Write something before exporting.");
+                return;
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            const blob = new Blob([
+                `# ZenSpace Notes - ${today}\n\n`,
+                `Energy Level Today: ${getCurrentMoodText()}\n\n`,
+                `---\n\n`,
+                noteText
+            ], { type: 'text/markdown;charset=utf-8' });
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `zenspace_thoughts_${today.replace(/-/g, '_')}.md`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    }
+
     function updateCounters(text) {
         if (!charCountEl || !wordCountEl) return;
-        
         charCountEl.textContent = text.length;
-        
         const cleanText = text.trim();
         const words = cleanText === '' ? 0 : cleanText.split(/\s+/).length;
         wordCountEl.textContent = words;
     }
+
+    function getCurrentMoodText() {
+        const activeMoodBtn = document.querySelector('.mood-emoji-btn.active');
+        return activeMoodBtn ? activeMoodBtn.getAttribute('data-mood').toUpperCase() : 'NOT RECORDED';
+    }
 }
 
 /* ==========================================================================
-   5. WEB AUDIO SYNTHESIZER SYSTEM (drone & timer bell)
+   5. WEB AUDIO SYNTHESIZER SYSTEM (Gong, Noise Generator & Volume Control)
    ========================================================================== */
 let audioCtx = null;
-let droneOsc1 = null;
-let droneOsc2 = null;
-let droneGain = null;
-let droneFilter = null;
-let isDronePlaying = false;
+let noiseNode = null;
+let noiseGain = null;
+let noiseFilter = null;
+let ambientVolume = 0.5; // default 50%
 
+let breathingOsc = null;
+let breathingFilter = null;
+let breathingGain = null;
+
+function getAudioContext() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioCtx;
+}
+
+// Resonant bell gong
 function playZenBell() {
     try {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
+        const ctx = getAudioContext();
+        if (ctx.state === 'suspended') {
+            ctx.resume();
         }
 
-        const now = audioCtx.currentTime;
-        // Rich harmonic gong using frequencies 330, 440, 550, 660
+        const now = ctx.currentTime;
         const frequencies = [330, 440, 550, 660];
         
         frequencies.forEach((f, idx) => {
-            const osc = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
+            const osc = ctx.createOscillator();
+            const gainNode = ctx.createGain();
             
             osc.type = 'sine';
             osc.frequency.setValueAtTime(f, now);
             
-            // Envelope details
             gainNode.gain.setValueAtTime(0, now);
-            gainNode.gain.linearRampToValueAtTime(0.12 / (idx + 1), now + 0.04);
-            gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 3.5);
+            gainNode.gain.linearRampToValueAtTime((0.15 / (idx + 1)) * ambientVolume, now + 0.04);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 4.0);
             
             osc.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
+            gainNode.connect(ctx.destination);
             
             osc.start(now);
-            osc.stop(now + 4);
+            osc.stop(now + 4.5);
         });
     } catch (e) {
-        console.error("Audio Synthesis error: ", e);
+        console.error("Audio Bell Synthesis error: ", e);
     }
 }
 
-function startFocusDrone() {
+// Low-pass filtered White/Pink Noise focus block
+function startFocusNoise() {
     try {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
+        const ctx = getAudioContext();
+        if (ctx.state === 'suspended') {
+            ctx.resume();
         }
 
-        const now = audioCtx.currentTime;
+        const now = ctx.currentTime;
+        const bufferSize = 2 * ctx.sampleRate;
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        
+        // Fill buffer with random values for white noise
+        for (let i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1;
+        }
 
-        // Binaural beat oscillators: 120Hz & 120.4Hz
-        droneOsc1 = audioCtx.createOscillator();
-        droneOsc2 = audioCtx.createOscillator();
-        
-        droneOsc1.type = 'sine';
-        droneOsc1.frequency.setValueAtTime(120, now);
-        
-        droneOsc2.type = 'sine';
-        droneOsc2.frequency.setValueAtTime(120.4, now);
-        
-        // Lowpass filter to make it deeply ambient and warm
-        droneFilter = audioCtx.createBiquadFilter();
-        droneFilter.type = 'lowpass';
-        droneFilter.frequency.setValueAtTime(140, now);
-        
-        droneGain = audioCtx.createGain();
-        droneGain.gain.setValueAtTime(0, now);
-        droneGain.gain.linearRampToValueAtTime(0.06, now + 2.0); // smooth fade in
+        noiseNode = ctx.createBufferSource();
+        noiseNode.buffer = noiseBuffer;
+        noiseNode.loop = true;
 
-        // Connections
-        droneOsc1.connect(droneFilter);
-        droneOsc2.connect(droneFilter);
-        droneFilter.connect(droneGain);
-        droneGain.connect(audioCtx.destination);
+        // Warm ambient low-pass filter
+        noiseFilter = ctx.createBiquadFilter();
+        noiseFilter.type = 'lowpass';
+        noiseFilter.frequency.setValueAtTime(150, now); // low cozy drone
+        noiseFilter.Q.setValueAtTime(1.5, now);
 
-        droneOsc1.start(now);
-        droneOsc2.start(now);
-        
-        isDronePlaying = true;
-    } catch(e) {
-        console.error("Failed to start Ambient Drone:", e);
+        noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0, now);
+        noiseGain.gain.linearRampToValueAtTime(0.12 * ambientVolume, now + 1.5); // Fade in
+
+        noiseNode.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(ctx.destination);
+
+        noiseNode.start(now);
+    } catch (e) {
+        console.error("Noise drone synthesis failed: ", e);
     }
 }
 
-function stopFocusDrone() {
-    if (!audioCtx) return;
+function stopFocusNoise() {
+    if (!audioCtx || !noiseNode) return;
+    const now = audioCtx.currentTime;
+    try {
+        noiseGain.gain.setValueAtTime(noiseGain.gain.value, now);
+        noiseGain.gain.linearRampToValueAtTime(0.0001, now + 1.0);
+        
+        const currentNoiseNode = noiseNode;
+        const currentGainNode = noiseGain;
+        noiseNode = null;
+        noiseGain = null;
+
+        setTimeout(() => {
+            try {
+                currentNoiseNode.stop();
+                currentNoiseNode.disconnect();
+                currentGainNode.disconnect();
+            } catch(err){}
+        }, 1100);
+    } catch(err){}
+}
+
+function updateAmbientVolume(val) {
+    ambientVolume = parseFloat(val) / 100;
+    const ctx = getAudioContext();
+    if (noiseGain) {
+        const now = ctx.currentTime;
+        noiseGain.gain.setValueAtTime(noiseGain.gain.value, now);
+        noiseGain.gain.linearRampToValueAtTime(0.12 * ambientVolume, now + 0.1);
+    }
+}
+
+// Breathing Swell Synthesizer (Filter sweep synchronizer)
+function startBreathingAudio() {
+    try {
+        const ctx = getAudioContext();
+        if (ctx.state === 'suspended') {
+            ctx.resume();
+        }
+
+        const now = ctx.currentTime;
+        breathingOsc = ctx.createOscillator();
+        breathingOsc.type = 'triangle'; // warmer than sine, richer than saw
+        breathingOsc.frequency.setValueAtTime(80, now); // low soothing hum
+
+        breathingFilter = ctx.createBiquadFilter();
+        breathingFilter.type = 'lowpass';
+        breathingFilter.frequency.setValueAtTime(120, now);
+        breathingFilter.Q.setValueAtTime(3.0, now); // slight resonance ring
+
+        breathingGain = ctx.createGain();
+        breathingGain.gain.setValueAtTime(0, now);
+
+        breathingOsc.connect(breathingFilter);
+        breathingFilter.connect(breathingGain);
+        breathingGain.connect(ctx.destination);
+
+        breathingOsc.start(now);
+    } catch (e) {
+        console.error("Breathing synth start failed: ", e);
+    }
+}
+
+function stopBreathingAudio() {
+    if (!audioCtx || !breathingOsc) return;
+    const now = audioCtx.currentTime;
+    try {
+        breathingGain.gain.setValueAtTime(breathingGain.gain.value, now);
+        breathingGain.gain.linearRampToValueAtTime(0.0001, now + 0.5);
+
+        const currentOsc = breathingOsc;
+        const currentGain = breathingGain;
+        breathingOsc = null;
+        breathingGain = null;
+
+        setTimeout(() => {
+            try {
+                currentOsc.stop();
+                currentOsc.disconnect();
+                currentGain.disconnect();
+            } catch(e){}
+        }, 600);
+    } catch(e){}
+}
+
+function triggerBreathingAudioSwell(phaseText) {
+    if (!audioCtx || !breathingFilter || !breathingGain) return;
     const now = audioCtx.currentTime;
     
-    if (droneGain) {
-        // Fade out before stopping to avoid audio click pop
-        droneGain.gain.setValueAtTime(droneGain.gain.value, now);
-        droneGain.gain.linearRampToValueAtTime(0.0001, now + 1.0);
-    }
+    // Smooth curves for breathe swells
+    breathingFilter.frequency.setValueAtTime(breathingFilter.frequency.value, now);
+    breathingGain.gain.setValueAtTime(breathingGain.gain.value, now);
 
-    setTimeout(() => {
-        if (droneOsc1) {
-            droneOsc1.stop();
-            droneOsc1.disconnect();
-            droneOsc1 = null;
-        }
-        if (droneOsc2) {
-            droneOsc2.stop();
-            droneOsc2.disconnect();
-            droneOsc2 = null;
-        }
-        if (droneGain) {
-            droneGain.disconnect();
-            droneGain = null;
-        }
-        isDronePlaying = false;
-    }, 1100);
+    if (phaseText === 'Inhale') {
+        // Sweep up: open filter, swell volume
+        breathingFilter.frequency.linearRampToValueAtTime(380, now + 4.0);
+        breathingGain.gain.linearRampToValueAtTime(0.08 * ambientVolume, now + 4.0);
+    } else if (phaseText === 'Hold') {
+        // Stay warm and steady
+        breathingFilter.frequency.setValueAtTime(380, now);
+        breathingGain.gain.setValueAtTime(0.08 * ambientVolume, now);
+    } else if (phaseText === 'Exhale') {
+        // Sweep down: close filter, drop volume
+        breathingFilter.frequency.linearRampToValueAtTime(120, now + 4.0);
+        breathingGain.gain.linearRampToValueAtTime(0.0001, now + 4.0);
+    }
 }
 
 /* ==========================================================================
-   6. BREATHING GUIDE SYSTEM
+   6. BREATHING GUIDE SYSTEM (with progress bars and Audio sweeps)
    ========================================================================== */
 function initBreathingSpace() {
     const toggleBtn = document.getElementById('breath-toggle-btn');
     const circle = document.getElementById('breathing-circle');
     const textEl = document.getElementById('breathing-text');
+    const progressBar = document.getElementById('breathing-progress-bar');
     
-    if (!toggleBtn || !circle || !textEl) return;
+    if (!toggleBtn || !circle || !textEl || !progressBar) return;
 
     let breathInterval = null;
     let isBreathingActive = false;
 
-    // Breathing phase pattern: Inhale (4s), Hold (4s), Exhale (4s)
     const phases = [
         { text: 'Inhale', class: 'breathing-inhale', duration: 4000 },
         { text: 'Hold', class: 'breathing-hold', duration: 4000 },
@@ -363,6 +481,8 @@ function initBreathingSpace() {
         toggleBtn.classList.remove('btn-secondary');
         toggleBtn.classList.add('btn-primary');
         currentPhaseIdx = 0;
+
+        startBreathingAudio();
         runBreathCycle();
     }
 
@@ -372,9 +492,19 @@ function initBreathingSpace() {
         const phase = phases[currentPhaseIdx];
         textEl.textContent = phase.text;
         
-        // Remove prior classes, assign current phase class
         circle.className = 'breath-circle'; 
         circle.classList.add(phase.class);
+
+        // Animate progression bar width using CSS resets
+        progressBar.style.transition = 'none';
+        progressBar.style.width = '0%';
+        void progressBar.offsetWidth; // force redraw/reflow
+        
+        progressBar.style.transition = `width ${phase.duration}ms linear`;
+        progressBar.style.width = '100%';
+
+        // Audio sweep trigger
+        triggerBreathingAudioSwell(phase.text);
 
         breathInterval = setTimeout(() => {
             currentPhaseIdx = (currentPhaseIdx + 1) % phases.length;
@@ -385,10 +515,14 @@ function initBreathingSpace() {
     function stopBreathing() {
         isBreathingActive = false;
         clearTimeout(breathInterval);
+        stopBreathingAudio();
         
-        // Reset styles
+        // Reset Visuals
         circle.className = 'breath-circle';
         textEl.textContent = 'Start';
+        progressBar.style.transition = 'none';
+        progressBar.style.width = '0%';
+        
         toggleBtn.textContent = 'Begin Breathwork';
         toggleBtn.classList.remove('btn-primary');
         toggleBtn.classList.add('btn-secondary');
@@ -396,7 +530,7 @@ function initBreathingSpace() {
 }
 
 /* ==========================================================================
-   7. FLOW TASKS MATRIX SYSTEM (Eisenhower CRUD & Stats)
+   7. FLOW TASKS MATRIX SYSTEM (Eisenhower drag-drop, stats & clear buttons)
    ========================================================================== */
 function initTasksMatrix() {
     const taskForm = document.getElementById('task-form');
@@ -404,22 +538,21 @@ function initTasksMatrix() {
     const taskQuadrant = document.getElementById('task-quadrant');
     const statsDone = document.getElementById('task-completed-count');
     const statsTotal = document.getElementById('task-total-count');
+    const clearCompletedBtns = document.querySelectorAll('.btn-clear-completed');
 
     if (!taskForm || !taskInput || !taskQuadrant) return;
 
     let tasks = [];
 
-    // Load tasks from LocalStorage
     try {
         tasks = JSON.parse(localStorage.getItem('zs-tasks')) || [];
     } catch(e) {
         tasks = [];
     }
 
-    // Initial render
     renderTasks();
+    initDragAndDrop();
 
-    // Form submission
     taskForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const text = taskInput.value.trim();
@@ -435,13 +568,26 @@ function initTasksMatrix() {
         tasks.push(newTask);
         saveAndRender();
         
-        // Reset input
         taskInput.value = '';
         taskInput.focus();
     });
 
+    // Quadrant Clear Buttons
+    clearCompletedBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const quadrant = btn.getAttribute('data-q');
+            const initialCount = tasks.length;
+            
+            // Filter out completed tasks of this quadrant
+            tasks = tasks.filter(t => !(t.quadrant === quadrant && t.completed));
+            
+            if (tasks.length < initialCount) {
+                saveAndRender();
+            }
+        });
+    });
+
     function renderTasks() {
-        // Clear all Lists in DOM
         const lists = {
             q1: document.getElementById('list-q1'),
             q2: document.getElementById('list-q2'),
@@ -449,7 +595,6 @@ function initTasksMatrix() {
             q4: document.getElementById('list-q4')
         };
 
-        // Reset DOM lists
         Object.values(lists).forEach(list => {
             if (list) list.innerHTML = '';
         });
@@ -462,10 +607,10 @@ function initTasksMatrix() {
 
             if (task.completed) completedCount++;
 
-            // Create Item Element
             const li = document.createElement('li');
             li.className = `task-item ${task.completed ? 'completed' : ''}`;
             li.setAttribute('data-id', task.id);
+            li.setAttribute('draggable', 'true'); // Make item HTML5 draggable
 
             li.innerHTML = `
                 <div class="task-checkbox-wrapper">
@@ -477,23 +622,70 @@ function initTasksMatrix() {
                 </button>
             `;
 
-            // Complete Trigger
+            // Checkbox event listeners
             li.querySelector('.task-checkbox-wrapper').addEventListener('click', () => {
                 toggleTaskComplete(task.id);
             });
 
-            // Delete Trigger
+            // Delete event listeners
             li.querySelector('.btn-delete-task').addEventListener('click', (e) => {
                 e.stopPropagation();
                 deleteTask(task.id);
             });
 
+            // Add drag listeners to this individual list item
+            li.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', task.id);
+                li.style.opacity = '0.4';
+            });
+
+            li.addEventListener('dragend', () => {
+                li.style.opacity = '1';
+            });
+
             listEl.appendChild(li);
         });
 
-        // Update global matrix counts
         if (statsDone) statsDone.textContent = completedCount;
         if (statsTotal) statsTotal.textContent = tasks.length;
+    }
+
+    // HTML5 Drag and Drop listeners on list containers (drop zones)
+    function initDragAndDrop() {
+        const dropZones = document.querySelectorAll('.drop-zone');
+        
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('drag-over');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                
+                const taskId = e.dataTransfer.getData('text/plain');
+                const targetQuadrant = zone.getAttribute('data-q');
+                
+                if (taskId && targetQuadrant) {
+                    moveTask(taskId, targetQuadrant);
+                }
+            });
+        });
+    }
+
+    function moveTask(id, targetQuad) {
+        tasks = tasks.map(task => {
+            if (task.id === id) {
+                return { ...task, quadrant: targetQuad };
+            }
+            return task;
+        });
+        saveAndRender();
     }
 
     function toggleTaskComplete(id) {
@@ -527,7 +719,7 @@ function initTasksMatrix() {
 }
 
 /* ==========================================================================
-   8. POMODORO TIMER SYSTEM
+   8. POMODORO TIMER SYSTEM (Configurable Durations & volume)
    ========================================================================== */
 function initPomodoroTimer() {
     const timerProgress = document.getElementById('timer-progress');
@@ -535,56 +727,55 @@ function initPomodoroTimer() {
     const timerLabel = document.getElementById('timer-label');
     const toggleBtn = document.getElementById('timer-toggle-btn');
     const resetBtn = document.getElementById('timer-reset-btn');
+    
     const soundToggle = document.getElementById('sound-toggle-btn');
+    const volSlider = document.getElementById('sound-volume-slider');
     const modeTabs = document.querySelectorAll('.mode-tab');
+    
+    const adjustDec = document.getElementById('timer-adjust-dec');
+    const adjustInc = document.getElementById('timer-adjust-inc');
 
     if (!timerCountdown || !toggleBtn) return;
 
-    let timeTotal = 25 * 60; // default 25 mins
+    // Load custom settings or fallback
+    let sessionDurations = {
+        'focus': parseInt(localStorage.getItem('zs-dur-focus')) || 25,
+        'short': parseInt(localStorage.getItem('zs-dur-short')) || 5,
+        'long': parseInt(localStorage.getItem('zs-dur-long')) || 15
+    };
+
+    let activeTabId = 'focus'; // focus, short, long
+    let timeTotal = sessionDurations[activeTabId] * 60;
     let timeRemaining = timeTotal;
     let timerInterval = null;
     let isRunning = false;
-    let currentModeName = 'Focus Mode';
 
-    // SVG Circumference helper
-    function getCircumference() {
-        if (!timerProgress) return 596.9; // fallback
-        const r = timerProgress.r.baseVal.value;
-        return 2 * Math.PI * r;
-    }
-
-    // Set initial dash-array
+    updateTimerDisplay();
     updateProgressRing();
 
-    // Modes switcher clicks
+    // Mode selection tabs click listeners
     modeTabs.forEach(tab => {
         tab.addEventListener('click', () => {
             if (isRunning) {
-                if (!confirm("A focus session is active. Switch modes and discard current progress?")) {
-                    return;
-                }
+                if (!confirm("Discard current active timer session?")) return;
             }
             
-            // Toggle active classes
             modeTabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
 
-            // Configure durations
-            const minutes = parseInt(tab.getAttribute('data-time'), 10);
-            timeTotal = minutes * 60;
-            timeRemaining = timeTotal;
-
-            // Configure Label texts
             if (tab.id === 'mode-focus') {
-                currentModeName = 'Focus Mode';
+                activeTabId = 'focus';
                 timerLabel.textContent = 'Focus Mode';
             } else if (tab.id === 'mode-short') {
-                currentModeName = 'Short Break';
+                activeTabId = 'short';
                 timerLabel.textContent = 'Short Break';
             } else {
-                currentModeName = 'Long Break';
+                activeTabId = 'long';
                 timerLabel.textContent = 'Long Break';
             }
+
+            timeTotal = sessionDurations[activeTabId] * 60;
+            timeRemaining = timeTotal;
 
             pauseTimer();
             updateTimerDisplay();
@@ -592,7 +783,50 @@ function initPomodoroTimer() {
         });
     });
 
-    // Control buttons triggers
+    // Time Increments adjustment triggers (+ / - buttons)
+    if (adjustDec) {
+        adjustDec.addEventListener('click', () => {
+            if (sessionDurations[activeTabId] > 1) {
+                sessionDurations[activeTabId]--;
+                saveDurations();
+                adjustTimerVal(-60);
+            }
+        });
+    }
+
+    if (adjustInc) {
+        adjustInc.addEventListener('click', () => {
+            sessionDurations[activeTabId]++;
+            saveDurations();
+            adjustTimerVal(60);
+        });
+    }
+
+    function adjustTimerVal(deltaSeconds) {
+        timeTotal += deltaSeconds;
+        timeRemaining = Math.max(0, timeRemaining + deltaSeconds);
+        
+        // If timer decreases to 0, force reset
+        if (timeRemaining === 0) {
+            timeRemaining = timeTotal;
+        }
+
+        updateTimerDisplay();
+        updateProgressRing();
+    }
+
+    function saveDurations() {
+        localStorage.setItem('zs-dur-focus', sessionDurations.focus);
+        localStorage.setItem('zs-dur-short', sessionDurations.short);
+        localStorage.setItem('zs-dur-long', sessionDurations.long);
+        
+        // Update data-time attributes in HTML
+        document.getElementById('mode-focus').setAttribute('data-time', sessionDurations.focus);
+        document.getElementById('mode-short').setAttribute('data-time', sessionDurations.short);
+        document.getElementById('mode-long').setAttribute('data-time', sessionDurations.long);
+    }
+
+    // Play & Reset Buttons Controls
     toggleBtn.addEventListener('click', () => {
         if (isRunning) {
             pauseTimer();
@@ -608,58 +842,63 @@ function initPomodoroTimer() {
         updateProgressRing();
     });
 
-    // Ambient Synth Audio Toggle
+    // Sound toggle and slider listeners
     if (soundToggle) {
         soundToggle.addEventListener('click', () => {
             const isSoundOn = soundToggle.getAttribute('aria-pressed') === 'true';
             
             if (isSoundOn) {
-                // Turn OFF sound
                 soundToggle.setAttribute('aria-pressed', 'false');
                 soundToggle.classList.remove('active');
                 soundToggle.querySelector('span').textContent = 'Off';
-                stopFocusDrone();
+                stopFocusNoise();
             } else {
-                // Turn ON sound
                 soundToggle.setAttribute('aria-pressed', 'true');
                 soundToggle.classList.add('active');
                 soundToggle.querySelector('span').textContent = 'On';
-                if (isRunning && currentModeName === 'Focus Mode') {
-                    startFocusDrone();
+                if (isRunning && activeTabId === 'focus') {
+                    startFocusNoise();
                 }
             }
+        });
+    }
+
+    if (volSlider) {
+        // Load default volume if saved
+        const savedVol = localStorage.getItem('zs-volume');
+        if (savedVol !== null) {
+            volSlider.value = savedVol;
+            ambientVolume = parseFloat(savedVol) / 100;
+        }
+
+        volSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            localStorage.setItem('zs-volume', val);
+            updateAmbientVolume(val);
         });
     }
 
     function startTimer() {
         isRunning = true;
         
-        // Update control button UI
         toggleBtn.querySelector('span').textContent = 'Pause';
         toggleBtn.classList.remove('btn-primary');
         toggleBtn.classList.add('btn-secondary');
         toggleBtn.querySelector('svg').innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
 
-        // Play ambient drone if toggled and in Focus mode
-        if (soundToggle && soundToggle.getAttribute('aria-pressed') === 'true' && currentModeName === 'Focus Mode') {
-            startFocusDrone();
+        if (soundToggle && soundToggle.getAttribute('aria-pressed') === 'true' && activeTabId === 'focus') {
+            startFocusNoise();
         }
 
         timerInterval = setInterval(() => {
             timeRemaining--;
             
             if (timeRemaining < 0) {
-                // Timer finished!
                 clearInterval(timerInterval);
                 playZenBell();
+                alert(`${activeTabId.toUpperCase()} session has completed.`);
+                stopFocusNoise();
                 
-                // Alert visual message
-                alert(`${currentModeName} has concluded.`);
-                
-                // Stop focus ambient drone
-                stopFocusDrone();
-                
-                // Reset states
                 isRunning = false;
                 timeRemaining = timeTotal;
                 pauseTimer();
@@ -674,14 +913,12 @@ function initPomodoroTimer() {
         isRunning = false;
         clearInterval(timerInterval);
         
-        // Update control button UI
         toggleBtn.querySelector('span').textContent = 'Start';
         toggleBtn.classList.remove('btn-secondary');
         toggleBtn.classList.add('btn-primary');
         toggleBtn.querySelector('svg').innerHTML = '<polygon points="6 3 20 12 6 21 6 3"/>';
 
-        // Pause ambient drone
-        stopFocusDrone();
+        stopFocusNoise();
     }
 
     function updateTimerDisplay() {
@@ -689,13 +926,11 @@ function initPomodoroTimer() {
         const secs = timeRemaining % 60;
         timerCountdown.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         
-        // Dynamic title bar tracking progress
         document.title = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} | ZenSpace`;
     }
 
     function updateProgressRing() {
         if (!timerProgress) return;
-        
         const circumference = getCircumference();
         timerProgress.style.strokeDasharray = `${circumference} ${circumference}`;
         
@@ -704,8 +939,121 @@ function initPomodoroTimer() {
         timerProgress.style.strokeDashoffset = offset;
     }
 
-    // Listen to resize events to update the circular SVG progress dash boundaries
-    window.addEventListener('resize', () => {
-        updateProgressRing();
+    function getCircumference() {
+        if (!timerProgress) return 596.9;
+        const r = timerProgress.r.baseVal.value;
+        return 2 * Math.PI * r;
+    }
+
+    window.addEventListener('resize', updateProgressRing);
+}
+
+/* ==========================================================================
+   9. DAILY MOOD LOG SYSTEM (localStorage + Streaks)
+   ========================================================================== */
+function initMoodTracker() {
+    const moodBtns = document.querySelectorAll('.mood-emoji-btn');
+    const streakEl = document.getElementById('mood-streak-count');
+
+    if (moodBtns.length === 0) return;
+
+    let moodLogs = [];
+    try {
+        moodLogs = JSON.parse(localStorage.getItem('zs-mood-logs')) || [];
+    } catch(e) {
+        moodLogs = [];
+    }
+
+    // Highlight today's logged mood if any
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayLog = moodLogs.find(log => log.date === todayStr);
+    
+    if (todayLog) {
+        const activeBtn = document.querySelector(`.mood-emoji-btn[data-mood="${todayLog.mood}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    // Calculate and display streak
+    updateStreakDisplay();
+
+    moodBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const selectedMood = btn.getAttribute('data-mood');
+            
+            // Remove active style from others
+            moodBtns.forEach(b => b.classList.remove('active'));
+            
+            // Toggle active style
+            btn.classList.add('active');
+
+            // Save log
+            const logIdx = moodLogs.findIndex(log => log.date === todayStr);
+            if (logIdx !== -1) {
+                // Update today's mood
+                moodLogs[logIdx].mood = selectedMood;
+            } else {
+                // Add new entry
+                moodLogs.push({ date: todayStr, mood: selectedMood });
+            }
+
+            localStorage.setItem('zs-mood-logs', JSON.stringify(moodLogs));
+            updateStreakDisplay();
+        });
     });
+
+    function updateStreakDisplay() {
+        if (!streakEl) return;
+        streakEl.textContent = calculateStreak(moodLogs);
+    }
+
+    function calculateStreak(logs) {
+        if (logs.length === 0) return 0;
+        
+        // Sort logs descending by date
+        const sortedDates = logs
+            .map(log => new Date(log.date))
+            .sort((a, b) => b - a);
+
+        let streak = 0;
+        let today = new Date();
+        today.setHours(0,0,0,0);
+        
+        let expectedDate = new Date(today);
+
+        // Check if yesterday or today was logged to count streak
+        const firstLogDate = new Date(sortedDates[0]);
+        firstLogDate.setHours(0,0,0,0);
+        
+        const diffTime = Math.abs(today - firstLogDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 1) {
+            // More than 1 day difference from today means streak broken
+            return 0;
+        }
+
+        // Loop and count sequential dates
+        let uniqueDaysStr = [...new Set(logs.map(l => l.date))].sort().reverse();
+        
+        let checkDate = new Date(today);
+        let checkDateStr = checkDate.toISOString().split('T')[0];
+        
+        // If today isn't logged, start check from yesterday
+        if (!uniqueDaysStr.includes(checkDateStr)) {
+            checkDate.setDate(checkDate.getDate() - 1);
+            checkDateStr = checkDate.toISOString().split('T')[0];
+        }
+
+        for (let i = 0; i < uniqueDaysStr.length; i++) {
+            if (uniqueDaysStr.includes(checkDateStr)) {
+                streak++;
+                checkDate.setDate(checkDate.getDate() - 1);
+                checkDateStr = checkDate.toISOString().split('T')[0];
+            } else {
+                break;
+            }
+        }
+
+        return streak;
+    }
 }
