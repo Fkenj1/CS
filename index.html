@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cosmic">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ZenSpace - A premium focus timer, task manager, and relaxation breathing space designed to maximize your mental clarity.">
+    <title>ZenSpace | Focus & Mindful Hub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Main Script -->
+    <script src="app.js" defer></script>
+</head>
+<body>
+    <div class="glass-bg-glow"></div>
+    <div class="glass-bg-glow secondary"></div>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="brand">
+                <span class="brand-logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10S2 17.523 2 12s4.477-10 10-10z"/><path d="M12 6a6 6 0 0 1 6 6c0 3.314-2.686 6-6 6s-6-2.686-6-6a6 6 0 0 1 6-6z"/><circle cx="12" cy="12" r="2"/></svg>
+                </span>
+                <div class="brand-text">
+                    <h1>ZenSpace</h1>
+                    <p class="tagline">Calm your mind, organize your flow.</p>
+                </div>
+            </div>
+
+            <div class="header-widgets">
+                <!-- Clock Widget -->
+                <div id="live-clock" class="clock-widget">
+                    <span id="clock-time">00:00:00 PM</span>
+                    <span id="clock-date" class="clock-date">Thursday, June 4</span>
+                </div>
+
+                <!-- Theme Selector -->
+                <div class="theme-selector-container">
+                    <button id="theme-btn" class="theme-select-btn" aria-label="Select theme" title="Change Theme">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6.364 6.364 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                        <span>Cosmic</span>
+                    </button>
+                    <div id="theme-menu" class="theme-menu-popup hidden">
+                        <button class="theme-opt active" data-theme="cosmic">
+                            <span class="color-dot cosmic"></span> Cosmic Dark
+                        </button>
+                        <button class="theme-opt" data-theme="forest">
+                            <span class="color-dot forest"></span> Forest Aura
+                        </button>
+                        <button class="theme-opt" data-theme="sunset">
+                            <span class="color-dot sunset"></span> Sunset Glow
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <main class="app-layout">
+            
+            <!-- COLUMN 1: FOCUS AREA -->
+            <section class="layout-column focus-column" aria-labelledby="focus-title">
+                <!-- POMODORO TIMER CARD -->
+                <div class="glass-card pomodoro-card">
+                    <h2 id="focus-title" class="section-title">Focus Timer</h2>
+                    
+                    <div class="timer-display-container">
+                        <!-- Circular Progress SVG -->
+                        <svg class="progress-ring" width="220" height="220">
+                            <circle class="progress-ring-bg" stroke="var(--card-border)" stroke-width="8" fill="transparent" r="95" cx="110" cy="110"/>
+                            <circle id="timer-progress" class="progress-ring-bar" stroke="var(--accent-glow)" stroke-width="8" fill="transparent" r="95" cx="110" cy="110" stroke-dasharray="596.9" stroke-dashoffset="0"/>
+                        </svg>
+                        <div class="timer-text-container">
+                            <div id="timer-countdown" class="timer-digits">25:00</div>
+                            <div id="timer-label" class="timer-mode">Focus Mode</div>
+                        </div>
+                    </div>
+
+                    <div class="timer-modes-tabs">
+                        <button id="mode-focus" class="mode-tab active" data-time="25">Focus</button>
+                        <button id="mode-short" class="mode-tab" data-time="5">Short Break</button>
+                        <button id="mode-long" class="mode-tab" data-time="15">Long Break</button>
+                    </div>
+
+                    <div class="timer-controls">
+                        <button id="timer-toggle-btn" class="btn btn-primary" aria-label="Start Timer">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                            <span>Start</span>
+                        </button>
+                        <button id="timer-reset-btn" class="btn btn-secondary" aria-label="Reset Timer">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            <span>Reset</span>
+                        </button>
+                    </div>
+
+                    <div class="audio-control-row">
+                        <span class="audio-label">Ambient Sound:</span>
+                        <button id="sound-toggle-btn" class="audio-toggle-btn" aria-pressed="false" title="Toggle Sound">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                            <span>Off</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BREATHING GUIDE CARD -->
+                <div class="glass-card breathing-card">
+                    <h2 class="section-title">Breathing Space</h2>
+                    <p class="section-desc">Take a moment to restore focus and align your breath.</p>
+                    
+                    <div class="breathing-display">
+                        <div id="breathing-circle" class="breath-circle">
+                            <div class="breath-circle-inner"></div>
+                            <span id="breathing-text" class="breath-text">Start</span>
+                        </div>
+                    </div>
+                    
+                    <div class="breathing-controls">
+                        <button id="breath-toggle-btn" class="btn btn-secondary">Begin Breathwork</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- COLUMN 2: PRODUCTIVITY (TASK MATRIX) -->
+            <section class="layout-column task-column" aria-labelledby="tasks-title">
+                <div class="glass-card task-card">
+                    <div class="card-header-row">
+                        <h2 id="tasks-title" class="section-title">Flow Tasks</h2>
+                        <div class="task-stats">
+                            <span id="task-completed-count">0</span>/<span id="task-total-count">0</span> Done
+                        </div>
+                    </div>
+                    
+                    <!-- Task Input Form -->
+                    <form id="task-form" class="task-input-container">
+                        <input type="text" id="task-input" placeholder="What requires your focus?" required maxlength="80">
+                        <select id="task-quadrant" aria-label="Task Quadrant">
+                            <option value="q1">Urgent & Important</option>
+                            <option value="q2">Important (Not Urgent)</option>
+                            <option value="q3">Urgent (Not Important)</option>
+                            <option value="q4">Quiet Admin Tasks</option>
+                        </select>
+                        <button type="submit" class="btn-add-task" aria-label="Add Task">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                    </form>
+
+                    <!-- The 4 Quadrants Grid -->
+                    <div class="matrix-grid">
+                        <!-- Quadrant 1: Urgent & Important -->
+                        <div class="matrix-quadrant q1" id="quadrant-q1">
+                            <div class="quadrant-header">
+                                <span class="quadrant-badge badge-q1">Do Now</span>
+                                <h3>Urgent & Important</h3>
+                            </div>
+                            <ul class="task-list" id="list-q1"></ul>
+                        </div>
+
+                        <!-- Quadrant 2: Important, Not Urgent -->
+                        <div class="matrix-quadrant q2" id="quadrant-q2">
+                            <div class="quadrant-header">
+                                <span class="quadrant-badge badge-q2">Schedule</span>
+                                <h3>Important & Strategic</h3>
+                            </div>
+                            <ul class="task-list" id="list-q2"></ul>
+                        </div>
+
+                        <!-- Quadrant 3: Urgent, Not Important -->
+                        <div class="matrix-quadrant q3" id="quadrant-q3">
+                            <div class="quadrant-header">
+                                <span class="quadrant-badge badge-q3">Delegate</span>
+                                <h3>Urgent & Routine</h3>
+                            </div>
+                            <ul class="task-list" id="list-q3"></ul>
+                        </div>
+
+                        <!-- Quadrant 4: Not Urgent, Not Important -->
+                        <div class="matrix-quadrant q4" id="quadrant-q4">
+                            <div class="quadrant-header">
+                                <span class="quadrant-badge badge-q4">Backlog</span>
+                                <h3>Quiet Admin / Study</h3>
+                            </div>
+                            <ul class="task-list" id="list-q4"></ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- COLUMN 3: MINDSPACE & INSIGHTS -->
+            <section class="layout-column mindspace-column" aria-labelledby="mindspace-title">
+                <!-- ZEN NOTE JOURNAL -->
+                <div class="glass-card note-card">
+                    <h2 id="mindspace-title" class="section-title">Zen Thoughts</h2>
+                    <p class="section-desc">Stream-of-consciousness journaling or quick ideas. Autosaves instantly.</p>
+                    
+                    <div class="textarea-container">
+                        <textarea id="zen-notebook" placeholder="Type what's on your mind. Free your thoughts..." maxlength="3000"></textarea>
+                    </div>
+                    
+                    <div class="notebook-footer">
+                        <div class="word-counter">
+                            <span id="char-count">0</span> characters | <span id="word-count">0</span> words
+                        </div>
+                        <button id="clear-notes-btn" class="btn-text" type="button">Clear Space</button>
+                    </div>
+                </div>
+
+                <!-- MINDFUL QUOTE -->
+                <div class="glass-card quote-card">
+                    <div class="quote-header-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-glow)" stroke-width="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2H4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h3c0 2.5-1 4.5-4 6.5m11 0.5c3 0 7-1 7-8V5c0-1.25-.75-2-2-2h-4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h3c0 2.5-1 4.5-4 6.5"/></svg>
+                    </div>
+                    <blockquote class="zen-quote">
+                        <p id="quote-text">Loading daily reflection...</p>
+                        <cite id="quote-author">&mdash; Loading</cite>
+                    </blockquote>
+                    <button id="refresh-quote-btn" class="quote-refresh-btn" aria-label="Refresh Quote">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    </button>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="app-footer">
+            <p>&copy; 2026 ZenSpace. Crafted with premium HTML5, CSS Grid, and custom audio oscillators.</p>
+        </footer>
+    </div>
+</body>
+</html>
