@@ -52,6 +52,54 @@
     --glow-bg-2: #601a02;
 }
 
+:root[data-theme="aurora"] {
+    --bg-gradient: radial-gradient(circle at 50% 50%, #030c0e 0%, #010405 100%);
+    --card-bg: rgba(5, 18, 22, 0.45);
+    --card-border: rgba(0, 245, 212, 0.15);
+    --card-border-hover: rgba(0, 245, 212, 0.35);
+    --text-primary: #e5fbf8;
+    --text-secondary: #9cb5b1;
+    --accent-glow: #00f5d4;
+    --accent-rgb: 0, 245, 212;
+    --accent-secondary: #7b2cbf;
+    --accent-sec-rgb: 123, 44, 191;
+    --shadow-color: rgba(0, 245, 212, 0.2);
+    --glow-bg-1: #004b23;
+    --glow-bg-2: #03045e;
+}
+
+:root[data-theme="rose"] {
+    --bg-gradient: radial-gradient(circle at 50% 50%, #170d10 0%, #0a0507 100%);
+    --card-bg: rgba(28, 15, 20, 0.45);
+    --card-border: rgba(255, 181, 167, 0.15);
+    --card-border-hover: rgba(255, 181, 167, 0.35);
+    --text-primary: #fff0ed;
+    --text-secondary: #cab4b0;
+    --accent-glow: #ffb5a7;
+    --accent-rgb: 255, 181, 167;
+    --accent-secondary: #fcd5ce;
+    --accent-sec-rgb: 252, 213, 206;
+    --shadow-color: rgba(255, 181, 167, 0.2);
+    --glow-bg-1: #590d22;
+    --glow-bg-2: #3c096c;
+}
+
+:root[data-theme="cyberpunk"] {
+    --bg-gradient: radial-gradient(circle at 50% 50%, #060608 0%, #010102 100%);
+    --card-bg: rgba(10, 10, 15, 0.6);
+    --card-border: rgba(254, 228, 64, 0.15);
+    --card-border-hover: rgba(254, 228, 64, 0.35);
+    --text-primary: #fcfcfc;
+    --text-secondary: #8c8c99;
+    --accent-glow: #fee440;
+    --accent-rgb: 254, 228, 64;
+    --accent-secondary: #ff007f;
+    --accent-sec-rgb: 255, 0, 127;
+    --shadow-color: rgba(254, 228, 64, 0.25);
+    --glow-bg-1: #001219;
+    --glow-bg-2: #5c0029;
+}
+
 /* Global Reset & Base Setup */
 *, *::before, *::after {
     box-sizing: border-box;
@@ -285,6 +333,9 @@ html, body {
 .color-dot.cosmic { background: #9d4edd; }
 .color-dot.forest { background: #52b788; }
 .color-dot.sunset { background: #f77f00; }
+.color-dot.aurora { background: #00f5d4; }
+.color-dot.rose { background: #ffb5a7; }
+.color-dot.cyberpunk { background: #fee440; }
 
 /* MAIN GRID LAYOUT */
 .app-layout {

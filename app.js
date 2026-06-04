@@ -84,9 +84,18 @@ function initThemeEngine() {
         localStorage.setItem('zs-theme', themeName);
 
         // Update button text
+        const themeNamesMap = {
+            'cosmic': 'Cosmic Dark',
+            'forest': 'Forest Aura',
+            'sunset': 'Sunset Glow',
+            'aurora': 'Aurora Wave',
+            'rose': 'Rose Quartz',
+            'cyberpunk': 'Cyberpunk Glow'
+        };
+
         const themeLabel = themeBtn.querySelector('span');
         if (themeLabel) {
-            themeLabel.textContent = themeName.charAt(0).toUpperCase() + themeName.slice(1);
+            themeLabel.textContent = themeNamesMap[themeName] || (themeName.charAt(0).toUpperCase() + themeName.slice(1));
         }
 
         // Update active class in menu list
